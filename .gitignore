@@ -1,0 +1,9 @@
+node_modules/
+.tmp
+actualImages
+baselineImages
+reports\a11y
+actualImages/
+baselineImages/
+*.tmp
+.DS_Store

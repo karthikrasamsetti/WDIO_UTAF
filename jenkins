@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+    environment {
+        K6_PROMETHEUS_RW_SERVER_URL = 'http://10.10.90.97:9090/api/v1/write'
+        K6_PROMETHEUS_RW_TREND_STATS = 'p(95),p(99),min,max'
+    }
+    tools{
+      nodejs 'node'
+    }
+    stages {
+        // stage('Checkout') {
+        //     steps {
+        //         git branch: 'main',credentialsId:"githubid", url: 'https://github.com/Feuji-QA/MSG_POC.git'
+        //     }
+        // }
+        stage('Build') {
+            steps {
+                script {
+                    bat 'npm i'
+                }
+            }
+        }
+        stage('Execute') {
+            steps {
+                script {
+                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    bat 'npm run parallel'
+                    }
+                }
+            }
+        }
+        //  stage('Executeperformance') {
+        //     steps {
+        //         script {
+        //             catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+        //             bat 'npm run performance'
+        //             }
+        //         }
+        //     }
+        // }
+    }
+    post {
+        always {
+            archiveArtifacts artifacts: '.tmp/report/', allowEmptyArchive: true
+        }
+    }
+}
